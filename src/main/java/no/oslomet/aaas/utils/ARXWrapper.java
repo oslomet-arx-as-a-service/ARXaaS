@@ -6,7 +6,6 @@ import no.oslomet.aaas.model.SensitivityModel;
 import org.deidentifier.arx.*;
 import org.deidentifier.arx.criteria.DistinctLDiversity;
 import org.deidentifier.arx.criteria.KAnonymity;
-import org.deidentifier.arx.ARXResult;
 import org.deidentifier.arx.criteria.PrivacyCriterion;
 import org.springframework.stereotype.Component;
 
