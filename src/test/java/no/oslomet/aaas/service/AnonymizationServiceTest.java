@@ -1,19 +1,18 @@
 package no.oslomet.aaas.service;
 
+import no.oslomet.aaas.analyser.ARXAnalyser;
+import no.oslomet.aaas.anonymizer.ARXAnonymiser;
+
 import no.oslomet.aaas.model.AnonymizationPayload;
 import no.oslomet.aaas.model.MetaData;
 import no.oslomet.aaas.model.PrivacyModel;
 import no.oslomet.aaas.model.SensitivityModel;
-import no.oslomet.aaas.service.AnonymizationService;
+
 import no.oslomet.aaas.utils.ARXPayloadAnalyser;
-import no.oslomet.aaas.utils.ARXResponseAnalyser;
 import no.oslomet.aaas.utils.ARXWrapper;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,21 +20,30 @@ import static no.oslomet.aaas.model.PrivacyModel.KANONYMITY;
 import static no.oslomet.aaas.model.SensitivityModel.IDENTIFYING;
 import static no.oslomet.aaas.model.SensitivityModel.QUASIIDENTIFYING;
 
+import static org.junit.Assert.*;
+
+/**
+ * [TODO] MOCK Anonymizer and Analyser dependencies
+ */
+
 public class AnonymizationServiceTest {
 
-    private AnonymizationService anonymizationService;
-
-    private ARXWrapper arxWrapper = new ARXWrapper();
-
-    @Before
-    public void initialize(){ anonymizationService = new AnonymizationService(arxWrapper); }
-
-    //-------------------------preparing test payload----------------------------//
-    private AnonymizationPayload testPayload = new AnonymizationPayload();
-    private MetaData testMetaData = new MetaData();
+    AnonymizationService anonymizationService;
+    AnonymizationPayload testPayload;
+    MetaData testMetaData;
+    ARXWrapper testARXWrapper;
 
     @Before
-    public void generateTestData() {
+    public void setUp() {
+        testARXWrapper = new ARXWrapper();
+        anonymizationService = new AnonymizationService(new ARXAnonymiser(testARXWrapper),
+                new ARXAnalyser(testARXWrapper, new ARXPayloadAnalyser()));
+        testPayload = new AnonymizationPayload();
+        generateTestData();
+    }
+
+    protected void generateTestData() {
+
         String testData ="age, gender, zipcode\n" +
                 "34, male, 81667\n" +
                 "35, female, 81668\n" +
@@ -51,58 +59,51 @@ public class AnonymizationServiceTest {
 
         testPayload.setData(testData);
 
+
+        testMetaData = new MetaData();
+
         //Defining attribute types(sensitive, identifying, quasi-identifying, insensitive, etc)
         Map<String, SensitivityModel> testMapAttribute = new HashMap<>();
-        testMapAttribute.put("age",IDENTIFYING);
-        testMapAttribute.put("gender",QUASIIDENTIFYING);
+        testMapAttribute.put("age", IDENTIFYING);
+        testMapAttribute.put("gender", QUASIIDENTIFYING);
+
         testMapAttribute.put("zipcode",QUASIIDENTIFYING);
         testMetaData.setSensitivityList(testMapAttribute);
 
         //Defining Hierarchy for a give column name
-        Map<String ,String[][]> testMapHierarchy = new HashMap<>();
-        String [][] testHeirarchy = new String[][]{
+
+        Map<String, String[][]> testMapHierarchy = new HashMap<>();
+        String[][] testHeirarchy = new String[][]{
                 {"81667", "8166*", "816**", "81***", "8****", "*****"}
-                ,{"81668", "8166*", "816**", "81***", "8****", "*****"}
-                ,{"81669", "8166*", "816**", "81***", "8****", "*****"}
-                ,{"81670", "8167*", "816**", "81***", "8****", "*****"}
-                ,{"81671", "8167*", "816**", "81***", "8****", "*****"}
-                ,{"81672", "8167*", "816**", "81***", "8****", "*****"}
-                ,{"81673", "8167*", "816**", "81***", "8****", "*****"}
-                ,{"81674", "8167*", "816**", "81***", "8****", "*****"}
-                ,{"81675", "8167*", "816**", "81***", "8****", "*****"}
-                ,{"81676", "8167*", "816**", "81***", "8****", "*****"}
-                ,{"81677", "8167*", "816**", "81***", "8****", "*****"}
+                , {"81668", "8166*", "816**", "81***", "8****", "*****"}
+                , {"81669", "8166*", "816**", "81***", "8****", "*****"}
+                , {"81670", "8167*", "816**", "81***", "8****", "*****"}
+                , {"81671", "8167*", "816**", "81***", "8****", "*****"}
+                , {"81672", "8167*", "816**", "81***", "8****", "*****"}
+                , {"81673", "8167*", "816**", "81***", "8****", "*****"}
+                , {"81674", "8167*", "816**", "81***", "8****", "*****"}
+                , {"81675", "8167*", "816**", "81***", "8****", "*****"}
+                , {"81676", "8167*", "816**", "81***", "8****", "*****"}
+                , {"81677", "8167*", "816**", "81***", "8****", "*****"}
         };
-        testMapHierarchy.put("zipcode",testHeirarchy);
+        testMapHierarchy.put("zipcode", testHeirarchy);
         testMetaData.setHierarchy(testMapHierarchy);
 
         //Define K-anonymity
-        Map<PrivacyModel,Map<String,String>> testMapPrivacy = new HashMap<>();
-        Map<String,String> testMapValue = new HashMap<>();
-        testMapValue.put("k","5");
-        testMapPrivacy.put(KANONYMITY,testMapValue);
+        Map<PrivacyModel, Map<String, String>> testMapPrivacy = new HashMap<>();
+        Map<String, String> testMapValue = new HashMap<>();
+        testMapValue.put("k", "5");
+        testMapPrivacy.put(KANONYMITY, testMapValue);
+
         testMetaData.setModels(testMapPrivacy);
 
         testPayload.setMetaData(testMetaData);
     }
-    //------------------------------------------------------------------------//
+
 
     @Test
-    public void anonymize() throws IOException {
-        String actual = anonymizationService.anonymize(testPayload);
-        String expected = "age;gender;zipcode\n" +
-                "*;male;816**\n" +
-                "*;female;816**\n" +
-                "*;male;816**\n" +
-                "*;female;816**\n" +
-                "*;male;816**\n" +
-                "*;female;816**\n" +
-                "*;male;816**\n" +
-                "*;female;816**\n" +
-                "*;male;816**\n" +
-                "*;female;816**\n" +
-                "*;male;816**\n";
-        Assert.assertEquals(expected,actual);
+    public void anonymize() {
+        var result = anonymizationService.anonymize(testPayload);
     }
 
 }
