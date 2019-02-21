@@ -1,4 +1,4 @@
-package no.OsloMET.aaas.utils;
+package no.oslomet.aaas.utils;
 
 import no.oslomet.aaas.model.AnonymizationPayload;
 import no.oslomet.aaas.model.PrivacyModel;

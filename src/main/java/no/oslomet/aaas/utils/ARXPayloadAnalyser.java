@@ -9,11 +9,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/***
+ * Utility class analysing the data against re-identification risk
+ */
 @Component
 public class ARXPayloadAnalyser {
 
     private static final int PRECENT_CONVERT = 100;
 
+    /***
+     * Returns a double that shows the lowest prosecutor re-identification risk found from the data set, based on
+     * the population model that is defined.
+     * @param data tabular data set to be analysed against re-identification risk
+     * @param pModel population model for our data set
+     * @return lowest risk calculated from the data set
+     */
     public double getPayloadLowestProsecutorRisk(Data data, ARXPopulationModel pModel){
         return data.getHandle()
                 .getRiskEstimator(pModel)
@@ -21,6 +31,14 @@ public class ARXPayloadAnalyser {
                 .getLowestRisk();
     }
 
+    /***
+     * Returns a double that shows the amount of records that are affected by a specific amount of risk. This method
+     * shows how much of our records has the specific amount of risk.
+     * @param data tabular data set to be analysed against re-identification risk
+     * @param pModel population model for our data set that defines the population size and sampling fraction
+     * @param risk specific amount of risk that affects one or more records
+     * @return records affect by a specific amount of risk
+     */
     public double getPayloadRecordsAffectByRisk(Data data, ARXPopulationModel pModel, double risk){
         return data.getHandle()
                 .getRiskEstimator(pModel)
@@ -28,6 +46,13 @@ public class ARXPayloadAnalyser {
                 .getFractionOfRecordsAtRisk(risk);
     }
 
+    /***
+     * Returns a double that shows the average prosecutor re-identification risk found from the data set, based on
+     * the population model that is defined.
+     * @param data tabular data set to be analysed against re-identification risk
+     * @param pModel population model for our data set that defines the population size and sampling fraction
+     * @return average risk calculated from the data set
+     */
     public Double getPayloadAverageProsecutorRisk(Data data, ARXPopulationModel pModel){
         return data.getHandle()
                 .getRiskEstimator(pModel)
