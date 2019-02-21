@@ -1,8 +1,6 @@
 package no.oslomet.aaas.service;
 
 import no.oslomet.aaas.model.AnonymizationPayload;
-import no.oslomet.aaas.utils.ARXPayloadAnalyser;
-import no.oslomet.aaas.utils.ARXResponseAnalyser;
 import no.oslomet.aaas.utils.ARXWrapper;
 import org.deidentifier.arx.*;
 import org.springframework.beans.factory.annotation.Autowired;
