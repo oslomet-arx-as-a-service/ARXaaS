@@ -1,0 +1,13 @@
+<RollingFile
+        name="rollingFile"
+        fileName="${LOG_DIR}/application.log"
+        ignoreExceptions="false">
+    <PatternLayout>
+        <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %m%n</Pattern>
+    </PatternLayout>
+    <Policies>
+        <TimeBasedTriggeringPolicy interval="1"/>
+    </Policies>
+    <DefaultRolloverStrategy max="5" />
+</RollingFile>
+
