@@ -54,10 +54,6 @@ public class ARXAnonymizer implements Anonymizer {
         }catch (IOException | NullPointerException e){
             logger.error(String.format("Exception error: %s", e.toString()));
             throw new UnableToAnonymizeDataException(e.toString());
-        }catch(IndexOutOfBoundsException e){
-            String errorMessage = String.format("%s, Failed to create dataset. Check if dataset format and attribute dataset fields are correct", e.toString());
-            logger.error(String.format("Exception error: %s", errorMessage));
-            throw new UnableToAnonymizeDataInvalidDataSetException(errorMessage);
         }
     }
 
