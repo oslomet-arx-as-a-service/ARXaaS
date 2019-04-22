@@ -36,17 +36,35 @@ public class ARXAnonymizer implements Anonymizer {
 
     @Override
     public AnonymizeResult anonymize(Request payload) {
-        org.deidentifier.arx.ARXAnonymizer anonymizer = new org.deidentifier.arx.ARXAnonymizer();
-
         Data data = dataFactory.create(payload);
+        ARXConfiguration config = getArxConfiguration(payload);
+        ARXResult result = getArxResult(data, config);
+        return packageResult(result,payload);
+
+    }
+
+    private ARXResult getArxResult(Data data, ARXConfiguration config) {
+        org.deidentifier.arx.ARXAnonymizer anonymizer = new org.deidentifier.arx.ARXAnonymizer();
         try {
-            ARXConfiguration config = configFactory.create(payload.getPrivacyModels(),payload.getSuppressionLimit());
-            ARXResult result = anonymizer.anonymize(data,config);
-            return packageResult(result,payload);
-        } catch (IOException | NullPointerException e) {
+            ARXResult result =  anonymizer.anonymize(data, config);
+            if(result.getOutput() == null){
+                throw new UnableToAnonymizeDataException("Could not fulfill the privacy criterion set");
+            }
+            return result;
+        }catch (IOException | NullPointerException e){
             logger.error(String.format("Exception error: %s", e.toString()));
             throw new UnableToAnonymizeDataException(e.toString());
-        } catch(IndexOutOfBoundsException e){
+        }catch(IndexOutOfBoundsException e){
+            String errorMessage = String.format("%s, Failed to create dataset. Check if dataset format and attribute dataset fields are correct", e.toString());
+            logger.error(String.format("Exception error: %s", errorMessage));
+            throw new UnableToAnonymizeDataInvalidDataSetException(errorMessage);
+        }
+    }
+
+    private ARXConfiguration getArxConfiguration(Request payload) {
+        try {
+            return configFactory.create(payload.getPrivacyModels());
+        }catch (IndexOutOfBoundsException e){
             String errorMessage = String.format("%s, Failed to create dataset. Check if dataset format and attribute dataset fields are correct", e.toString());
             logger.error(String.format("Exception error: %s", errorMessage));
             throw new UnableToAnonymizeDataInvalidDataSetException(errorMessage);
