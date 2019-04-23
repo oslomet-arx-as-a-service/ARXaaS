@@ -59,7 +59,7 @@ public class ARXAnonymizer implements Anonymizer {
 
     private ARXConfiguration getArxConfiguration(Request payload) {
         try {
-            return configFactory.create(payload.getPrivacyModels());
+            return configFactory.create(payload.getPrivacyModels(),payload.getSuppressionLimit());
         }catch (IndexOutOfBoundsException e){
             String errorMessage = String.format("%s, Failed to create dataset. Check if dataset format and attribute dataset fields are correct", e.toString());
             logger.error(String.format("Exception error: %s", errorMessage));
