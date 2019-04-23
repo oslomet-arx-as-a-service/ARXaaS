@@ -48,19 +48,23 @@ public class ARXAnonymizer implements Anonymizer {
         try {
             ARXResult result =  anonymizer.anonymize(data, config);
             if(result.getOutput() == null){
-                throw new UnableToAnonymizeDataException("Could not fulfill the privacy criterion set");
+                String errorMessage = "Could not fulfill the privacy criterion set";
+                String logError = "Exception error: " + errorMessage;
+                logger.error(logError);
+                throw new UnableToAnonymizeDataException(errorMessage);
             }
             return result;
-        }catch (IOException | NullPointerException e){
-            logger.error(String.format("Exception error: %s", e.toString()));
-            throw new UnableToAnonymizeDataException(e.toString());
+        }catch (IOException | IndexOutOfBoundsException e){
+            String errorMessage = String.format("%s, Failed to create dataset. Check if dataset format and attribute dataset fields are correct", e.toString());
+            logger.error(String.format("Exception error: %s", errorMessage));
+            throw new UnableToAnonymizeDataInvalidDataSetException(errorMessage);
         }
     }
 
     private ARXConfiguration getArxConfiguration(Request payload) {
         try {
             return configFactory.create(payload.getPrivacyModels(),payload.getSuppressionLimit());
-        }catch (IndexOutOfBoundsException e){
+        }catch (IndexOutOfBoundsException | NullPointerException e){
             String errorMessage = String.format("%s, Failed to create dataset. Check if dataset format and attribute dataset fields are correct", e.toString());
             logger.error(String.format("Exception error: %s", errorMessage));
             throw new UnableToAnonymizeDataInvalidDataSetException(errorMessage);
