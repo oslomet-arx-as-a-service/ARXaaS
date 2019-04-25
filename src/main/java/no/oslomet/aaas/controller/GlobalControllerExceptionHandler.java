@@ -79,7 +79,7 @@ class GlobalControllerExceptionHandler {
         ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
                         ex.toString() + ", " +
                 "Unable to anonymize the dataset with the provided attributes and hierarchies." +
-                        " A common cause of this error is more thant one QUASIIDENTIFYING attribute without a hierarchy",
+                        " A common cause of this error is more than one QUASIIDENTIFYING attribute without a hierarchy",
                 request.getDescription(false));
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
